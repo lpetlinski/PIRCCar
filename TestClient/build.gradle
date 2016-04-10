@@ -1,0 +1,8 @@
+apply plugin: 'application'
+
+mainClassName = 'lpetlinski.pirccar.testclient.TestClient'
+
+dependencies {
+    compile project(':base')
+    compile name: 'simpleConnection'
+}

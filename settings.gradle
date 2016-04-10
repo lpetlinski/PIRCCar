@@ -1,0 +1,2 @@
+include ':testclient2', ':androidclient'
+include "PiServer", "TestClient", "base", "TestServer", "AndroidClient"

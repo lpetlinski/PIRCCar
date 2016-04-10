@@ -1,0 +1,22 @@
+apply plugin: "idea"
+
+buildscript {
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'E:/Java/PIRCCar/libs'
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.0.0'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'E:/Java/PIRCCar/libs'
+        }
+    }
+}

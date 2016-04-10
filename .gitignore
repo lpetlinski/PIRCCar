@@ -1,1 +1,5 @@
 /AndroidClient/.idea
+/**/.gradle
+/**/.idea
+/**/build
+/**/*.iml
