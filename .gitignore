@@ -3,3 +3,6 @@
 /**/.idea
 /**/build
 /**/*.iml
+/androidclient/gradle
+/androidclient/gradlew.bat
+/androidclient/gradlew
