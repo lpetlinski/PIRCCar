@@ -3,6 +3,7 @@ apply plugin: "idea"
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         flatDir {
             dirs 'E:/Java/PIRCCar/libs'
         }
@@ -15,6 +16,17 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+        jcenter()
+        flatDir {
+            dirs 'E:/Java/PIRCCar/libs'
+        }
+    }
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
         flatDir {
             dirs 'E:/Java/PIRCCar/libs'
         }

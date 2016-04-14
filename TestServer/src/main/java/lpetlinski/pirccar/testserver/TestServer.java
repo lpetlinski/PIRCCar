@@ -1,8 +1,8 @@
 package lpetlinski.pirccar.testserver;
 
-import lpetlinski.pirccar.piserver.PiServer;
-
 import java.io.IOException;
+
+import lpetlinski.pirccar.piserver.PiServer;
 
 public class TestServer extends PiServer {
 
@@ -10,8 +10,12 @@ public class TestServer extends PiServer {
         super(new TestLedIndicator(), new TestMotorController());
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         TestServer server = new TestServer();
-        server.runServer();
+        try {
+            server.runServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

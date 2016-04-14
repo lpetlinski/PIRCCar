@@ -4,35 +4,34 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+
+import com.github.niqdev.mjpeg.DisplayMode;
+import com.github.niqdev.mjpeg.Mjpeg;
+import com.github.niqdev.mjpeg.MjpegInputStream;
+import com.github.niqdev.mjpeg.MjpegSurfaceView;
 
 import java.io.IOException;
 
 import lpetlinski.pirccar.base.Move;
 import lpetlinski.pirccar.base.MoveMessage;
 import lpetlinski.pirccar.base.Turn;
-import lpetlinski.pircclient.androidclient.mjpeg.MjpegInputStream;
-import lpetlinski.pircclient.androidclient.mjpeg.MjpegView;
 import lpetlinski.simpleconnection.Client;
 import lpetlinski.simpleconnection.ClientConfig;
 import lpetlinski.simpleconnection.events.Event;
 import lpetlinski.simpleconnection.protocol.JSONProtocol;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import rx.functions.Action1;
 
 public class PiControllerActivity extends Activity {
 
     private Client client;
     private MoveMessage actualState;
-    private MjpegView mjpegView = null;
+    private MjpegSurfaceView mjpegView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +40,18 @@ public class PiControllerActivity extends Activity {
 
         Intent intent = getIntent();
 
-        this.mjpegView = (MjpegView) findViewById(R.id.mjpegView);
-        if (this.mjpegView != null) {
-            //this.mjpegView.setResolution(320, 240);
-        }
+        this.mjpegView = (MjpegSurfaceView) findViewById(R.id.mjpegView);
 
-        new DoRead().execute("http://" + intent.getStringExtra(MainActivity.SERVER_IP) + ":" + intent.getStringExtra(MainActivity.MJPEG_SERVER_PORT));
+        Mjpeg.newInstance()
+                .open("http://" + intent.getStringExtra(MainActivity.SERVER_IP) + ":" + intent.getStringExtra(MainActivity.MJPEG_SERVER_PORT))
+                .subscribe(new Action1<MjpegInputStream>() {
+                    @Override
+                    public void call(MjpegInputStream mjpegInputStream) {
+                        mjpegView.setSource(mjpegInputStream);
+                        mjpegView.setDisplayMode(DisplayMode.FULLSCREEN);
+                        mjpegView.showFps(false);
+                    }
+                });
 
         ClientConfig config = new ClientConfig();
         config.setProtocol(new JSONProtocol());
@@ -101,6 +106,7 @@ public class PiControllerActivity extends Activity {
         upButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                System.out.println("up");
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                     actualState.setMove(Move.Forward);
                     client.send(actualState);
@@ -118,6 +124,7 @@ public class PiControllerActivity extends Activity {
         downButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                System.out.println("down");
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                     actualState.setMove(Move.Backward);
                     client.send(actualState);
@@ -135,6 +142,7 @@ public class PiControllerActivity extends Activity {
         leftButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                System.out.println("left");
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                     actualState.setTurn(Turn.Left);
                     client.send(actualState);
@@ -152,6 +160,7 @@ public class PiControllerActivity extends Activity {
         rightButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                System.out.println("right");
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                     actualState.setTurn(Turn.Right);
                     client.send(actualState);
@@ -220,41 +229,5 @@ public class PiControllerActivity extends Activity {
             this.mjpegView.freeCameraMemory();
         }
         super.onDestroy();
-    }
-
-    private void setMjpegStatus(String status) {
-        TextView mjpegStatus = (TextView) findViewById(R.id.viewStatus);
-        mjpegStatus.setText(status);
-    }
-
-    public void mjpegImageError() {
-
-    }
-
-    public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
-        protected MjpegInputStream doInBackground(String... url) {
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(url[0])
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                return new MjpegInputStream(response.body().byteStream());
-            } catch (IOException e) {
-                return null;
-            }
-        }
-
-        protected void onPostExecute(MjpegInputStream result) {
-            PiControllerActivity.this.mjpegView.setSource(result);
-            if (result != null) {
-                result.setSkip(1);
-                PiControllerActivity.this.setMjpegStatus("");
-            } else {
-                PiControllerActivity.this.setMjpegStatus("Disconnected");
-            }
-            PiControllerActivity.this.mjpegView.setDisplayMode(MjpegView.SIZE_BEST_FIT);
-            PiControllerActivity.this.mjpegView.showFps(false);
-        }
     }
 }

@@ -1,6 +1,22 @@
 apply plugin: 'application'
+apply plugin: 'java'
 
 mainClassName = 'lpetlinski.pirccar.testserver.TestServer'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+version = '1.0'
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Raspberry pi test server',
+                'Implementation-Version': version,
+                'Main-Class': mainClassName
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
 
 dependencies {
     compile 'com.pi4j:pi4j-core:1.0'

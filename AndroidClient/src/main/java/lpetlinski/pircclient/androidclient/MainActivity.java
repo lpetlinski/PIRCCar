@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         carControllerIntent.putExtra(SERVER_PORT, Integer.parseInt(portInput.getText().toString()));
 
         //noinspection ConstantConditions
-        carControllerIntent.putExtra(MJPEG_SERVER_PORT, Integer.parseInt(mjpegPortInput.getText().toString()));
+        carControllerIntent.putExtra(MJPEG_SERVER_PORT, mjpegPortInput.getText().toString());
 
         startActivity(carControllerIntent);
     }
