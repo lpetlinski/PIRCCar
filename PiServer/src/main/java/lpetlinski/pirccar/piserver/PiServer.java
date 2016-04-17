@@ -36,7 +36,9 @@ public class PiServer {
         server.onReceive(new EventWithMessage<Message>() {
             @Override
             public void onEventOccurred(Message r) {
+                System.out.println("Got message from client");
                 if (r instanceof MoveMessage) {
+                    System.out.println("It is move mesasge: Move: " + ((MoveMessage) r).getMove().name() + ", turn: " + ((MoveMessage) r).getTurn().name());
                     motorController.setState(((MoveMessage) r).getMove(), ((MoveMessage) r).getTurn());
                 }
             }
@@ -58,6 +60,11 @@ public class PiServer {
     }
 
     public static void main(String[] args) throws IOException {
+        for(String arg : args) {
+            if("--debug".equals(arg)) {
+                PiGpioController.enableDebug();
+            }
+        }
         PiServer server = new PiServer();
 
         server.runServer();

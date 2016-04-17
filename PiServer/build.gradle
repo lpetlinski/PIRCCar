@@ -4,12 +4,15 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 version = '1.0'
 
-jar {
+task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Raspberry pi server',
                 'Implementation-Version': version,
                 'Main-Class': 'lpetlinski.pirccar.piserver.PiServer'
     }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 dependencies {

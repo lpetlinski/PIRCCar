@@ -13,6 +13,7 @@ public class MotorController {
 
     private static final Map<Turn, Pin> pinTurnsMap = new HashMap<>();
     private static final Map<Move, Pin> pinMoveMap = new HashMap<>();
+    private static final Pin enableMovePin = RaspiPin.GPIO_01;
 
     static {
         pinMoveMap.put(Move.Backward, RaspiPin.GPIO_02);
@@ -42,6 +43,7 @@ public class MotorController {
         if(turn != this.turnDirection) {
             this.setTurn(turn);
         }
+
     }
 
     private void setTurn(Turn turn) {
@@ -66,14 +68,17 @@ public class MotorController {
         this.moveDirection = move;
         switch (this.moveDirection) {
             case None:
+                this.controller.setOutputPinState(enableMovePin, PinState.LOW);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Backward), PinState.LOW);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Forward), PinState.LOW);
                 break;
             case Forward:
+                this.controller.setOutputPinState(enableMovePin, PinState.HIGH);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Backward), PinState.LOW);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Forward), PinState.HIGH);
                 break;
             case Backward:
+                this.controller.setOutputPinState(enableMovePin, PinState.HIGH);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Backward), PinState.HIGH);
                 this.controller.setOutputPinState(pinMoveMap.get(Move.Forward), PinState.LOW);
                 break;

@@ -32,6 +32,9 @@ public class PiControllerActivity extends Activity {
     private Client client;
     private MoveMessage actualState;
     private MjpegSurfaceView mjpegView = null;
+    private String serverIp = null;
+    private Integer serverPort = null;
+    private String mjpegPort = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +45,16 @@ public class PiControllerActivity extends Activity {
 
         this.mjpegView = (MjpegSurfaceView) findViewById(R.id.mjpegView);
 
-        Mjpeg.newInstance()
-                .open("http://" + intent.getStringExtra(MainActivity.SERVER_IP) + ":" + intent.getStringExtra(MainActivity.MJPEG_SERVER_PORT))
-                .subscribe(new Action1<MjpegInputStream>() {
-                    @Override
-                    public void call(MjpegInputStream mjpegInputStream) {
-                        mjpegView.setSource(mjpegInputStream);
-                        mjpegView.setDisplayMode(DisplayMode.FULLSCREEN);
-                        mjpegView.showFps(false);
-                    }
-                });
+        this.serverIp = intent.getStringExtra(MainActivity.SERVER_IP);
+        this.serverPort = intent.getIntExtra(MainActivity.SERVER_PORT, 0);
+        this.mjpegPort = intent.getStringExtra(MainActivity.MJPEG_SERVER_PORT);
+
+        this.runMjpegView();
 
         ClientConfig config = new ClientConfig();
         config.setProtocol(new JSONProtocol());
-        config.setAddress(intent.getStringExtra(MainActivity.SERVER_IP));
-        config.setPort(intent.getIntExtra(MainActivity.SERVER_PORT, 0));
+        config.setAddress(this.serverIp);
+        config.setPort(this.serverPort);
         this.actualState = new MoveMessage();
 
         final Handler handler = new Handler(Looper.getMainLooper());
@@ -193,41 +191,59 @@ public class PiControllerActivity extends Activity {
         return builder.create();
     }
 
+    private void runMjpegView() {
+        Mjpeg.newInstance()
+                .open("http://" + this.serverIp + ":" + this.mjpegPort)
+                .doOnError(new Action1<Throwable>() {
+                               @Override
+                               public void call(Throwable throwable) {
+                                   PiControllerActivity.this.runMjpegView();
+                               }
+                           }
+                )
+                .subscribe(new Action1<MjpegInputStream>() {
+                    @Override
+                    public void call(MjpegInputStream mjpegInputStream) {
+                        mjpegView.setSource(mjpegInputStream);
+                        mjpegView.setDisplayMode(DisplayMode.FULLSCREEN);
+                        mjpegView.showFps(false);
+                    }
+                });
+    }
+
 
     @Override
     protected void onStop() {
-        if(this.client.isStarted()) {
-            this.client.stopClient();
-        }
+        this.stopClients();
         super.onStop();
     }
 
     @Override
     protected void onPause() {
-        if(this.client.isStarted()) {
-            this.client.stopClient();
-        }
-        if(this.mjpegView != null) {
-            if(this.mjpegView.isStreaming()) {
-                this.mjpegView.stopPlayback();
-            }
-        }
+        stopClients();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
         if(!this.client.isStarted()) {
             finish();
         }
+        super.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        if(this.mjpegView != null) {
-            this.mjpegView.freeCameraMemory();
-        }
+        stopClients();
         super.onDestroy();
+    }
+
+    private void stopClients() {
+        if(this.client != null && this.client.isStarted()) {
+            this.client.stopClient();
+        }
+        if(this.mjpegView != null &&this.mjpegView.isStreaming()) {
+            this.mjpegView.stopPlayback();
+        }
     }
 }
