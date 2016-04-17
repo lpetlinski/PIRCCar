@@ -3,23 +3,9 @@ apply plugin: "idea"
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
-        flatDir {
-            dirs 'E:/Java/PIRCCar/libs'
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.0.0'
-    }
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
-        jcenter()
-        flatDir {
-            dirs 'E:/Java/PIRCCar/libs'
-        }
     }
 }
 
@@ -27,8 +13,6 @@ subprojects {
     repositories {
         mavenCentral()
         jcenter()
-        flatDir {
-            dirs 'E:/Java/PIRCCar/libs'
-        }
+        maven { url "https://jitpack.io" }
     }
 }

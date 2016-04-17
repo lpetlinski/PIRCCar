@@ -25,5 +25,5 @@ dependencies {
     compile 'com.pi4j:pi4j-service:1.0'
     compile project(':PiServer')
     compile project(':base')
-    compile name: 'simpleConnection'
+    compile 'com.github.lpetlinski:simpleconnection:-SNAPSHOT'
 }

@@ -6,5 +6,5 @@ version = '1.0'
 
 
 dependencies {
-    compile name: 'simpleConnection'
+    compile 'com.github.lpetlinski:simpleconnection:-SNAPSHOT'
 }

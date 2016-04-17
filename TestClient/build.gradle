@@ -4,5 +4,5 @@ mainClassName = 'lpetlinski.pirccar.testclient.TestClient'
 
 dependencies {
     compile project(':base')
-    compile name: 'simpleConnection'
+    compile 'com.github.lpetlinski:simpleconnection:-SNAPSHOT'
 }
